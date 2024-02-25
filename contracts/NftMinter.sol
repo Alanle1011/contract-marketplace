@@ -1,26 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.8;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract NftMinter is ERC721, ERC721URIStorage, Ownable {
-    uint256 private s_tokenCounter; 
 
+contract NftMinter is ERC721, ERC721URIStorage {
+    uint256 private _nextTokenId;
+      
     constructor()
-        ERC721("MyToken", "MTK")
-        Ownable(msg.sender)
+        ERC721("Alanle Minter", "ALM")
     {}
 
-    function safeMint(address to string memory uri)
-        public
-        onlyOwner
-    {
-
-        _safeMint(to, s_tokenCounter);
-        _setTokenURI(s_tokenCounter, uri);
-        s_tokenCounter = s_tokenCounter + 1;
+    function safeMint(string memory uri) public {
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(msg.sender, tokenId);
+        _setTokenURI(tokenId, uri);
     }
 
     // The following functions are overrides required by Solidity.
@@ -32,6 +27,10 @@ contract NftMinter is ERC721, ERC721URIStorage, Ownable {
         returns (string memory)
     {
         return super.tokenURI(tokenId);
+    }
+
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId)
