@@ -262,12 +262,15 @@ contract NftMarketPlace is ReentrancyGuard {
     uint256 price
   )external payable nonReentrant isBidding(nftAddress, tokenId) {
     Bidding memory biddingItem = s_biddings[nftAddress][tokenId];
-    if (msg.value < biddingItem.price) {
+    if (price <= biddingItem.price) {
       revert NftMarketPlace__PriceNotMet(nftAddress, tokenId, biddingItem.price);
     }
-    if(block.timestamp > biddingItem.endTime ){
-      revert NftMarketPlace__BiddingTimeIsOver(nftAddress, tokenId, biddingItem.endTime);
+    if(biddingItem.endTime != 0) {
+      if(block.timestamp > biddingItem.endTime ){
+        revert NftMarketPlace__BiddingTimeIsOver(nftAddress, tokenId, biddingItem.endTime);
+      }
     }
+    
     uint256 newTime = block.timestamp + 300; // Add 5' the current time
     s_biddings[nftAddress][tokenId] = Bidding(biddingItem.seller, msg.sender, price, newTime);
     emit RaiseBidPrice(msg.sender,nftAddress, tokenId, price, newTime);
@@ -294,7 +297,7 @@ contract NftMarketPlace is ReentrancyGuard {
       revert NftMarketPlace__BuyBiddingTimeIsNotMeet(nftAddress, tokenId, biddingItem.endTime);
     }
 
-    if(biddingItem.buyer == msg.sender){
+    if(biddingItem.buyer != msg.sender){
       revert NftMarketPlace__NotTheHighestBidder();
     }
 
