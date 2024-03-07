@@ -47,7 +47,15 @@ module.exports = {
       {
         version: "0.6.6",
       },
+      {
+        version: "0.6.6",
+      },
     ],
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+    viaIR: true,
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,
