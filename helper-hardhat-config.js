@@ -14,7 +14,6 @@ const networkConfig = {
     name: "sepolia",
     ethUsdPriceFeed: "0x694AA1769357215DE4FAC081bf1f309aDC325306",
     vrfCoordinatorV2: "0x8103b0a8a00be2ddc778e6e7eaa21791cd364625",
-
     gasLane:
       "0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c",
     callbackGasLimit: "500000",

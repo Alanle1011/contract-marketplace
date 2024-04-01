@@ -14,15 +14,12 @@ error NftMarketPlace__PriceNotMet(
   uint256 tokenId,
   uint256 price
 );
-error NftMarketPlace__BiddingTimeIsOver(
-  address nftAddress,
-  uint256 tokenId,
-  uint256 price
-);
+error NftMarketPlace__BiddingTimeIsOver();
 error NftMarketPlace__BuyBiddingTimeIsNotMeet(
   address nftAddress, 
   uint256 tokenId, 
-  uint256 endTime
+  uint256 startBuyTime,
+  uint256 endBuyTime
 );
 error NftMarketPlace__NotTheHighestBidder();
 error NftMarketPlace__NotBidding();
@@ -39,7 +36,8 @@ contract NftMarketPlace is ReentrancyGuard {
     address seller;
     address buyer;
     uint256 price;
-    uint256 endTime;
+    uint256 startBuyTime;
+    uint256 endBuyTime;
   }
 
   event ItemListed(
@@ -64,8 +62,9 @@ contract NftMarketPlace is ReentrancyGuard {
     address indexed buyer,
     address indexed nftAddress,
     uint256 indexed tokenId,
-    uint256 price,
-    uint256 endTime
+    uint256 startBuyTime,
+    uint256 endBuyTime,
+    uint256 price
   );
   event ItemCanceled(
     address indexed seller,
@@ -252,7 +251,7 @@ contract NftMarketPlace is ReentrancyGuard {
       revert NftMarketPlace__NotApproveForMarketPlace();
     }
     
-    s_biddings[nftAddress][tokenId] = Bidding(msg.sender, 0x0000000000000000000000000000000000000000, price, 0 );
+    s_biddings[nftAddress][tokenId] = Bidding(msg.sender, 0x0000000000000000000000000000000000000000, price, 0, 0);
     emit BidItemListed(msg.sender, nftAddress, tokenId, price);
   }
 
@@ -265,15 +264,16 @@ contract NftMarketPlace is ReentrancyGuard {
     if (price <= biddingItem.price) {
       revert NftMarketPlace__PriceNotMet(nftAddress, tokenId, biddingItem.price);
     }
-    if(biddingItem.endTime != 0) {
-      if(block.timestamp > biddingItem.endTime ){
-        revert NftMarketPlace__BiddingTimeIsOver(nftAddress, tokenId, biddingItem.endTime);
+    if(biddingItem.startBuyTime != 0) {
+      if(block.timestamp > biddingItem.startBuyTime &&block.timestamp < biddingItem.endBuyTime ){
+        revert NftMarketPlace__BiddingTimeIsOver();
       }
     }
     
-    uint256 newTime = block.timestamp + 300; // Add 5' the current time
-    s_biddings[nftAddress][tokenId] = Bidding(biddingItem.seller, msg.sender, price, newTime);
-    emit RaiseBidPrice(msg.sender,nftAddress, tokenId, price, newTime);
+    uint256 newStartTime = block.timestamp + 300; // Add 5' the current time
+    uint256 newEndTime = newStartTime + 300; // Add 10' the current time
+    s_biddings[nftAddress][tokenId] = Bidding(biddingItem.seller, msg.sender, price, newStartTime, newEndTime);
+    emit RaiseBidPrice(msg.sender,nftAddress, tokenId, newStartTime, newEndTime, price);
   }
 
   function cancelBidding(
@@ -293,8 +293,8 @@ contract NftMarketPlace is ReentrancyGuard {
     uint256 tokenId
   ) external payable nonReentrant isBidding(nftAddress, tokenId) {
     Bidding memory biddingItem = s_biddings[nftAddress][tokenId];
-    if(block.timestamp < biddingItem.endTime ){
-      revert NftMarketPlace__BuyBiddingTimeIsNotMeet(nftAddress, tokenId, biddingItem.endTime);
+    if(block.timestamp < biddingItem.endBuyTime || block.timestamp > biddingItem.startBuyTime ){
+      revert NftMarketPlace__BuyBiddingTimeIsNotMeet(nftAddress, tokenId, biddingItem.startBuyTime ,biddingItem.endBuyTime);
     }
 
     if(biddingItem.buyer != msg.sender){

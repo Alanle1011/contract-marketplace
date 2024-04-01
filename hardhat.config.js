@@ -12,6 +12,8 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY || "0x";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "key";
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || "key";
 const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL;
+const ARBITRUM_RPC_URL = process.env.ARBITRUM_RPC_URL;
+const ARBISCAN_API_KEY = process.env.ARBISCAN_API_KEY || "key";
 
 module.exports = {
   defaultNetwork: "hardhat",
@@ -27,6 +29,12 @@ module.exports = {
       url: SEPOLIA_RPC_URL,
       accounts: [PRIVATE_KEY],
       chainId: 11155111,
+      blockConfirmations: 6,
+    },
+    arbitrum:{
+      url: ARBITRUM_RPC_URL,
+      accounts: [PRIVATE_KEY],
+      chainId: 421614,
       blockConfirmations: 6,
     },
     mainnet: {
@@ -58,8 +66,19 @@ module.exports = {
     viaIR: true,
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
-    customChains: [],
+    apiKey: {
+      arbitrumSepolia:ARBISCAN_API_KEY
+    },
+    customChains: [
+      {
+        network: "arbitrumSepolia",
+        chainId: 421614,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io/",
+        },
+      },
+    ],
   },
   gasReporter: {
     enabled: true,
