@@ -293,7 +293,7 @@ contract NftMarketPlace is ReentrancyGuard {
     uint256 tokenId
   ) external payable nonReentrant isBidding(nftAddress, tokenId) {
     Bidding memory biddingItem = s_biddings[nftAddress][tokenId];
-    if(block.timestamp < biddingItem.endBuyTime || block.timestamp > biddingItem.startBuyTime ){
+    if(block.timestamp > biddingItem.endBuyTime || block.timestamp < biddingItem.startBuyTime ){
       revert NftMarketPlace__BuyBiddingTimeIsNotMeet(nftAddress, tokenId, biddingItem.startBuyTime ,biddingItem.endBuyTime);
     }
 
