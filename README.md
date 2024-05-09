@@ -4,6 +4,10 @@
    3. `cacelItem`: Cancel a listing
    4. `updateListing`: Update price
    5. `widthrawProceeds`: Withdraw payment for my bought NFTs
+   6. `listBiddingItem`: List the bidding item
+   7. `raiseBidPrice`: Reaise the price ò the bidding nft
+   8. `cancelBidding`: Owner can cacel the bid item
+   9. `buyBidItem`: After bidding time, hightest bidder can buy the nft
 
 
 ```shell
